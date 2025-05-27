@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# 清理函数
-cleanup() {
-    echo "清理 exchange 目录..."
-    rm -rf ./exchange/*
-}
-
 # 检查进程是否在运行
 check_process() {
     # 检查PID文件
@@ -42,8 +36,6 @@ if check_process; then
     exit 0
 fi
 
-# 清理环境
-cleanup
 
 # 启动服务
 echo "启动 symbol server..."
