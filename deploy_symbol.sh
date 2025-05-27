@@ -20,9 +20,30 @@ setup_nodejs() {
     fi
 }
 
+# 创建package.json
+create_package_json() {
+    echo "创建 package.json..."
+    cat > package.json << EOL
+{
+  "name": "symbol-server",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "tardis-dev": "^11.0.3",
+    "axios": "^1.4.0",
+    "minimist": "^1.2.8"
+  }
+}
+EOL
+}
+
 # 安装依赖
 install_dependencies() {
     echo "安装依赖..."
+    # 如果package.json不存在，先创建它
+    if [ ! -f package.json ]; then
+        create_package_json
+    fi
     npm install --no-audit --no-fund
 }
 
