@@ -6,16 +6,16 @@ setup_nodejs() {
     
     if command -v node &> /dev/null; then
         current_version=$(node -v | cut -d"v" -f2 | cut -d"." -f1)
-        if [ $current_version -lt 20 ]; then
+        if [ $current_version -lt 22 ]; then
             echo "Node.js 版本过低 ($(node -v))，正在更新..."
-            curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+            curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
             apt-get install -y nodejs
         else
             echo "Node.js 版本符合要求 ($(node -v))"
         fi
     else
         echo "未安装 Node.js，正在安装..."
-        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
         apt-get install -y nodejs
     fi
 }
@@ -29,9 +29,9 @@ create_package_json() {
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "tardis-dev": "^11.0.3",
-    "axios": "^1.4.0",
-    "minimist": "^1.2.8"
+    "tardis-dev": "*",
+    "axios": "*",
+    "minimist": "*"
   }
 }
 EOL
