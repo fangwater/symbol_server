@@ -16,12 +16,12 @@ setup_nodejs() {
     local need_install=false
     local need_update=false
     
-    if ! command -v node &> /dev/null; then
+    if [ ! -x "/usr/bin/node" ]; then
         echo "未安装 Node.js"
         need_install=true
     else
         # 获取完整版本号（例如：v22.16.0）
-        local version_str=$(node --version)
+        local version_str=$(/usr/bin/node --version)
         # 使用 awk 提取主版本号，移除 'v' 前缀
         local major_version=$(echo $version_str | awk -F. '{print substr($1,2)}')
         
@@ -45,12 +45,12 @@ setup_nodejs() {
     fi
     
     # 最后验证安装
-    if ! command -v node &> /dev/null; then
+    if [ ! -x "/usr/bin/node" ]; then
         echo "Node.js 安装失败，请检查系统环境"
         exit 1
     fi
     
-    echo "Node.js 安装/更新完成：$(node --version)"
+    echo "Node.js 安装/更新完成：$(/usr/bin/node --version)"
 }
 
 # 创建package.json
