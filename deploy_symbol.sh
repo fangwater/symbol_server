@@ -12,19 +12,30 @@ setup_nodejs() {
     
     echo "检查 Node.js 环境..."
     
-    if command -v node &> /dev/null; then
+    # 检查是否需要安装或更新 Node.js
+    local need_install=false
+    local need_update=false
+    
+    if ! command -v node &> /dev/null; then
+        echo "未安装 Node.js"
+        need_install=true
+    else
+        echo "检测到 Node.js: $(node -v)"
+        # 只在 Node.js 已安装的情况下检查版本
         current_version=$(node -v | cut -d"v" -f2 | cut -d"." -f1)
         if [ $current_version -lt 22 ]; then
-            echo "Node.js 版本过低 ($(node -v))，正在更新..."
-            # 移除旧版本的 Node.js 源（如果存在）
-            rm -f /etc/apt/sources.list.d/nodesource.list
-            curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-            apt-get install -y nodejs
+            echo "Node.js 版本过低，需要更新"
+            need_update=true
         else
-            echo "Node.js 版本符合要求 ($(node -v))"
+            echo "Node.js 版本符合要求"
         fi
-    else
-        echo "未安装 Node.js，正在安装..."
+    fi
+
+    # 安装或更新 Node.js
+    if [ "$need_install" = true ] || [ "$need_update" = true ]; then
+        echo "准备安装/更新 Node.js..."
+        # 移除旧版本的 Node.js 源（如果存在）
+        rm -f /etc/apt/sources.list.d/nodesource.list
         curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
         apt-get install -y nodejs
     fi
