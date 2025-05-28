@@ -2,12 +2,22 @@
 
 # 检查并安装/更新 Node.js
 setup_nodejs() {
+    echo "检查并安装必要的系统依赖..."
+    
+    # 确保系统包列表是最新的
+    apt-get update
+    
+    # 安装必要的依赖
+    apt-get install -y curl ca-certificates gnupg
+    
     echo "检查 Node.js 环境..."
     
     if command -v node &> /dev/null; then
         current_version=$(node -v | cut -d"v" -f2 | cut -d"." -f1)
         if [ $current_version -lt 22 ]; then
             echo "Node.js 版本过低 ($(node -v))，正在更新..."
+            # 移除旧版本的 Node.js 源（如果存在）
+            rm -f /etc/apt/sources.list.d/nodesource.list
             curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
             apt-get install -y nodejs
         else
@@ -18,6 +28,14 @@ setup_nodejs() {
         curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
         apt-get install -y nodejs
     fi
+    
+    # 验证安装
+    if ! command -v node &> /dev/null; then
+        echo "Node.js 安装失败，请检查系统环境"
+        exit 1
+    fi
+    
+    echo "Node.js 安装/更新完成：$(node -v)"
 }
 
 # 创建package.json
