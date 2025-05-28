@@ -20,10 +20,14 @@ setup_nodejs() {
         echo "未安装 Node.js"
         need_install=true
     else
-        echo "检测到 Node.js: $(node -v)"
-        # 只在 Node.js 已安装的情况下检查版本
-        current_version=$(node -v | cut -d"v" -f2 | cut -d"." -f1)
-        if [ $current_version -lt 22 ]; then
+        # 获取完整版本号（例如：v22.16.0）
+        local version_str=$(node --version)
+        # 使用 awk 提取主版本号，移除 'v' 前缀
+        local major_version=$(echo $version_str | awk -F. '{print substr($1,2)}')
+        
+        echo "检测到 Node.js: $version_str"
+        
+        if [[ ! "$major_version" =~ ^[0-9]+$ ]] || [ "$major_version" -lt 22 ]; then
             echo "Node.js 版本过低，需要更新"
             need_update=true
         else
@@ -40,13 +44,13 @@ setup_nodejs() {
         apt-get install -y nodejs
     fi
     
-    # 验证安装
+    # 最后验证安装
     if ! command -v node &> /dev/null; then
         echo "Node.js 安装失败，请检查系统环境"
         exit 1
     fi
     
-    echo "Node.js 安装/更新完成：$(node -v)"
+    echo "Node.js 安装/更新完成：$(node --version)"
 }
 
 # 创建package.json
