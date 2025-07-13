@@ -4,84 +4,6 @@
 # 修复了 Node.js 检测、依赖安装和 systemd 服务问题
 # 用法: sudo ./deploy_symbol.sh
 
-# 检查并安装/更新 Node.js
-setup_nodejs() {
-    echo "===== 检查 Node.js 环境 ====="
-    local need_action=false
-    local node_path=""
-    local npm_path=""
-
-    # 更可靠的 Node.js 检测方式
-    if command -v node &> /dev/null; then
-        node_path=$(command -v node)
-        echo "检测到 Node.js 已安装: $node_path"
-        
-        # 获取 Node.js 版本
-        version_str=$("$node_path" --version 2>/dev/null)
-        
-        # 验证版本号格式
-        if [[ "$version_str" =~ ^v([0-9]+)\. ]]; then
-            major_version=${BASH_REMATCH[1]}
-            echo "当前版本: $version_str (主版本: $major_version)"
-            
-            if [ "$major_version" -lt 22 ]; then
-                echo "Node.js 版本过低 (需要 v22.x)"
-                need_action=true
-            else
-                echo "Node.js 版本符合要求"
-            fi
-        else
-            echo "⚠️ 无法解析 Node.js 版本: '$version_str'"
-            need_action=true
-        fi
-    else
-        echo "未检测到 Node.js"
-        need_action=true
-    fi
-
-    # 仅在需要时处理 Node.js
-    if [ "$need_action" = true ]; then
-        echo "准备安装/更新 Node.js v22.x..."
-        
-        # 安装系统依赖
-        echo "安装必要的系统依赖..."
-        apt-get update
-        apt-get install -y curl ca-certificates gnupg
-        
-        # 清理旧版本和源
-        echo "清理旧版本..."
-        apt-get purge -y nodejs npm &> /dev/null
-        rm -rf /etc/apt/sources.list.d/nodesource.list*
-        
-        # 添加 NodeSource 源
-        echo "添加 NodeSource 源..."
-        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
-        echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
-        
-        # 安装 Node.js
-        echo "安装 Node.js..."
-        apt-get update
-        apt-get install -y nodejs
-        
-        # 验证安装
-        if ! command -v node &> /dev/null; then
-            echo "❌ Node.js 安装失败！"
-            exit 1
-        fi
-        
-        # 设置新安装的路径
-        node_path=$(command -v node)
-        npm_path=$(command -v npm)
-        echo "Node.js 安装成功: $($node_path --version)"
-        echo "NPM 安装成功: $($npm_path --version)"
-    fi
-    
-    # 确保 NPM 可用
-    if ! command -v npm &> /dev/null; then
-        echo "❌ NPM 不可用，安装失败！"
-        exit 1
-    fi
-}
 
 # 创建 package.json
 create_package_json() {
@@ -240,7 +162,6 @@ main() {
     echo "当前工作目录: $(pwd)"
     
     # 仅在需要时更新系统
-    setup_nodejs
     install_dependencies
     create_run_script
     setup_service
