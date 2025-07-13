@@ -53,7 +53,8 @@ main() {
     # 获取当前工作目录
     echo "当前工作目录: $(pwd)"
     install_dependencies
-    create_run_script
+    sh run_symbol_server.sh
+    echo "===== 部署完成 ====="
 }
 
 main
