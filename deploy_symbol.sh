@@ -105,9 +105,10 @@ Description=Symbol Server Service
 After=network.target
 
 [Service]
-Type=simple
+Type=forking
 WorkingDirectory=${current_dir}
 ExecStart=${script_path}
+PIDFile=${current_dir}/symbol_server.pid
 Restart=always
 RestartSec=10
 User=root
@@ -160,8 +161,6 @@ main() {
     
     # 获取当前工作目录
     echo "当前工作目录: $(pwd)"
-    
-    # 仅在需要时更新系统
     install_dependencies
     create_run_script
     setup_service
